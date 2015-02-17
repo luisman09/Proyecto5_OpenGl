@@ -34,6 +34,24 @@ using namespace std;
 
 #include "glm.h"
 
+//Variables para la carga de las texturas
+static GLuint texName;
+int iheight, iwidth;
+unsigned char* image = NULL;
+
+static GLuint texName2;
+int iheight2, iwidth2;
+unsigned char* image2 = NULL;
+
+static GLuint texName3;
+int iheight3, iwidth3;
+unsigned char* image3 = NULL;
+
+//Variables para el color
+GLfloat r = 1.0;
+GLfloat g = 1.0;
+GLfloat b = 1.0;
+
 
 void changeViewport(int w, int h) {
 	
@@ -52,8 +70,6 @@ void changeViewport(int w, int h) {
 
 void init(){
 
-
-	
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
    glEnable(GL_DEPTH_TEST);
@@ -67,24 +83,55 @@ void cargar_materiales(int idx) {
 
 	// Material Piso
 	if (idx == 0){	
-		
+
+		glGenTextures(1, &texName);
+		glBindTexture(GL_TEXTURE_2D, texName);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		image = glmReadPPM("texAO_plano.ppm", &iwidth, &iheight);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth, iheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+
 	}
 
 	// Material Columna
 	if (idx == 1){
-		
-		
+
+		glGenTextures(1, &texName2);
+		glBindTexture(GL_TEXTURE_2D, texName2);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		image2 = glmReadPPM("texAO_columna.ppm", &iwidth2, &iheight2);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth2, iheight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+
 	}
 
 	// Material Conejo
 	if (idx == 2){
 
-		
-		
+		glGenTextures(1, &texName3);
+		glBindTexture(GL_TEXTURE_2D, texName3);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		image3 = glmReadPPM("texAO_bunny.ppm", &iwidth3, &iheight3);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth3, iheight3, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
+
 	}
-
-
-	
 
 }
 
@@ -96,7 +143,12 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 
 	// update transform
 	aiTransposeMatrix4(&m);
+
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
 	glPushMatrix();
+	
 	glMultMatrixf((float*)&m);
 
 	// draw all meshes assigned to this node
@@ -144,6 +196,8 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 	}
 
 	glPopMatrix();
+
+	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -153,6 +207,54 @@ void Keyboard(unsigned char key, int x, int y)
   {
 	case 27:             
 		exit (0);
+		break;
+
+	case 84: case 116: //tecla t
+
+		if(r < 1.0){
+			r += 0.1;
+		}
+
+		break;
+
+	case 71: case 103: //tecla g
+
+		if(r > 0.0){
+			r -= 0.1;
+		}
+
+		break;
+
+	case 89: case 121: //tecla y
+
+		if(g < 1.0){
+			g += 0.1;
+		}
+
+		break;
+
+	case 72: case 104: //tecla h
+
+		if(g > 0.0){
+			g -= 0.1;
+		}
+
+		break;
+
+    case 85: case 117: //tecla u
+
+		if(b < 1.0){
+			b += 0.1;
+		}
+
+		break;
+
+	case 74: case 106: //tecla j
+
+		if(b > 0.0){
+			b -= 0.1;
+		}
+
 		break;
 
   }
@@ -169,6 +271,24 @@ void render(){
 
 	glLoadIdentity ();                       
 	gluLookAt (0, 80, 250, 0.0, 15.0, 0.0, 0.0, 1.0, 0.0);
+
+	// Luz
+	GLfloat light_ambient[] = { 0.0, 0.0, 0.2, 1.0 };
+	GLfloat light_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
+	GLfloat light_specular[] = { 0.6, 0.6, 0.6, 1.0 };
+	GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
+	GLfloat spotlight_position[] = {0.0, -1.0, 0.0};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
+
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 50.0);
+    glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 25.0);
+	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,spotlight_position);
+
+
 
 	
 
@@ -202,8 +322,8 @@ void render(){
 }
 
 void animacion(int value) {
-	
-	glutTimerFunc(10,animacion,1);
+
+	glutTimerFunc(2.0,animacion,1);
     glutPostRedisplay();
 	
 }
@@ -323,6 +443,7 @@ int main (int argc, char** argv) {
 
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
+	//glutTimerFunc(10,animacion,1);
 	glutKeyboardFunc (Keyboard);
 	
 
