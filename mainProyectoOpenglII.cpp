@@ -48,7 +48,7 @@ int iheight3, iwidth3;
 unsigned char* image3 = NULL;
 
 //Variables globales
-GLfloat cAmb = 0.5f; // Componente ambiental de los modelos.
+GLfloat cAmb[] = { 0.5f, 0.5f, 0.5f, 1.0f }; // Componente ambiental de los modelos.
 
 GLfloat light_ambient[] =  {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat light_diffuse[] =  {1.0f, 0.0f, 0.0f, 1.0f};
@@ -181,24 +181,45 @@ void cargar_materiales(int idx) {
 
 	cargar_texturas(idx);
 
-
 	// Material Piso
 	if (idx == 0){	
+	
+		GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+		GLfloat high_shininess[] = { 80.0 };
 
-		
-
+		glMaterialfv(GL_FRONT, GL_AMBIENT, cAmb);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+		glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 
 	}
 
 	// Material Columna
 	if (idx == 1){
 
-		
+		GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+		GLfloat high_shininess[] = { 80.0 };
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, cAmb);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+		glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+
 	}
 
 	// Material Conejo
 	if (idx == 2){
 
+		GLfloat mat_diffuse[] = { r, g, b, 1.0 };
+		GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+		GLfloat high_shininess[] = { 80.0 };
+
+		glMaterialfv(GL_FRONT, GL_AMBIENT, cAmb);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+		glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
 		
 	}
 
@@ -298,15 +319,19 @@ void Keyboard(unsigned char key, int x, int y)
 
 	case 90: case 122: //tecla z
 
-		if (cAmb < 1.0) {
-			cAmb += 0.1;
+		if (cAmb[0] < 1.0) {
+			cAmb[0] += 0.1;
+			cAmb[1] += 0.1;
+			cAmb[2] += 0.1;
 		}
 		break;
 
 	case 88: case 120: //tecla x
 
-		if(cAmb > 0.0) {
-			cAmb -= 0.1;
+		if(cAmb[0] > 0.0) {
+			cAmb[0] -= 0.1;
+			cAmb[1] -= 0.1;
+			cAmb[2] -= 0.1;
 		}
 		break;
 
@@ -456,7 +481,6 @@ void Keyboard(unsigned char key, int x, int y)
 
 void DibujarObjetos3D() {
 
-
 	glLightfv(GL_LIGHT0, GL_AMBIENT, iLuz);
    	glLightfv(GL_LIGHT0, GL_DIFFUSE, cLuz);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, iLuz);
@@ -482,41 +506,17 @@ void render(){
 
 	DibujarObjetos3D();
 
-	// Luz
-	
-	/*GLfloat global_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-	
-	GLfloat light_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
-	//GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
-	//GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
-	GLfloat spotlight_position[] = {posX, -1.0, posZ};
-
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, cLuz);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, iLuz);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
-
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
-	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);*/
-	
-	
+	// Luz	
 
 	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
 	//glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
 	//glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
 
-	
-
-	
 
 	//Suaviza las lineas
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable( GL_LINE_SMOOTH );	
-	
-	
+
 
 	glPushMatrix();
 	glEnable(GL_NORMALIZE);
