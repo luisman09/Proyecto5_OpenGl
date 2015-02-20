@@ -47,10 +47,23 @@ static GLuint texName3;
 int iheight3, iwidth3;
 unsigned char* image3 = NULL;
 
-//Variables para el color
-GLfloat r = 1.0;
-GLfloat g = 1.0;
-GLfloat b = 1.0;
+//Variables globales
+
+GLfloat cutoff = 50.0f; // Cutoff del spotlight.
+GLfloat exponent = 25.0f; // Exponent del spotlight.
+GLfloat cAmb = 0.5f; // Componente ambiental de los modelos.
+GLfloat posX = 0.0f; // Posición en X del spotlight.
+GLfloat posZ = 0.0f; // Posición en Z del spotlight.
+
+GLfloat r = 1.0; // Color Red del conejo.
+GLfloat g = 1.0; // Color Green del conejo.
+GLfloat b = 1.0; // Color Blue del conejo.
+
+GLint reflex = 0; // Reflexión
+GLint sReflex = 0; // Solo reflexión. Sin iluminación.
+
+GLfloat iLuz[] = { 1.0, 1.0, 1.0, 1.0 }; // Intensidad de la luz. // SPECULAR
+GLfloat cLuz[] = { 1.0, 1.0, 1.0, 1.0 }; // Color de la luz. // DIFFUSE
 
 
 void changeViewport(int w, int h) {
@@ -209,12 +222,65 @@ void Keyboard(unsigned char key, int x, int y)
 		exit (0);
 		break;
 
+	case 81: case 113: //tecla q
+
+		cutoff += 0.1;
+		break;
+
+	case 87: case 119: //tecla w
+
+		cutoff -= 0.1;
+		break;
+
+	case 65: case 97: //tecla a
+
+		exponent += 0.1;
+		break;
+
+	case 83: case 115: //tecla s
+
+		exponent -= 0.1;
+		break;
+
+	case 90: case 122: //tecla z
+
+		if (cAmb < 1.0) {
+			cAmb += 0.1;
+		}
+		break;
+
+	case 88: case 120: //tecla x
+
+		if(cAmb > 0.0) {
+			cAmb -= 0.1;
+		}
+		break;
+
+	case 69: case 101: //tecla e
+
+		posX += 0.1;
+		break;
+
+	case 68: case 100: //tecla d
+
+		posX -= 0.1;
+		break;
+
+	case 82: case 114: //tecla r
+
+		posZ += 0.1;
+		break;
+
+	case 70: case 102: //tecla f
+
+		posZ -= 0.1;
+		break;
+
 	case 84: case 116: //tecla t
 
 		if(r < 1.0){
 			r += 0.1;
 		}
-
 		break;
 
 	case 71: case 103: //tecla g
@@ -222,7 +288,6 @@ void Keyboard(unsigned char key, int x, int y)
 		if(r > 0.0){
 			r -= 0.1;
 		}
-
 		break;
 
 	case 89: case 121: //tecla y
@@ -230,7 +295,6 @@ void Keyboard(unsigned char key, int x, int y)
 		if(g < 1.0){
 			g += 0.1;
 		}
-
 		break;
 
 	case 72: case 104: //tecla h
@@ -238,7 +302,6 @@ void Keyboard(unsigned char key, int x, int y)
 		if(g > 0.0){
 			g -= 0.1;
 		}
-
 		break;
 
     case 85: case 117: //tecla u
@@ -246,7 +309,6 @@ void Keyboard(unsigned char key, int x, int y)
 		if(b < 1.0){
 			b += 0.1;
 		}
-
 		break;
 
 	case 74: case 106: //tecla j
@@ -254,7 +316,82 @@ void Keyboard(unsigned char key, int x, int y)
 		if(b > 0.0){
 			b -= 0.1;
 		}
+		break;
 
+	case 67: case 99: //tecla c
+
+		if(reflex == 0){
+			reflex = 1;
+		} else {
+			reflex = 0;		
+		}
+		break;
+
+	case 86: case 118: //tecla v
+
+		if(sReflex == 0){
+			sReflex = 1;
+		} else {
+			sReflex = 0;
+		}
+		break;
+
+	case 66: case 98: //tecla b
+
+		if (iLuz[0] < 1.0) {
+			iLuz[0] += 0.1;
+			iLuz[1] += 0.1;
+			iLuz[2] += 0.1;
+		}
+		break;
+
+	case 78: case 110: //tecla n
+
+		if (iLuz[0] > 0.0) {
+			iLuz[0] -= 0.1;
+			iLuz[1] -= 0.1;
+			iLuz[2] -= 0.1;
+		}
+		break;
+
+	case 49: //tecla 1
+
+		cLuz[0] = 1.0f;
+		cLuz[1] = 1.0f;
+		cLuz[2] = 1.0f;
+		cLuz[3] = 1.0f;
+		break;
+
+	case 50: //tecla 2
+
+		cLuz[0] = 0.0f;
+		cLuz[1] = 1.0f;
+		cLuz[2] = 1.0f;
+		cLuz[3] = 1.0f;
+		break;
+
+	case 51: //tecla 3
+
+		cLuz[0] = 0.0f;
+		cLuz[1] = 1.0f;
+		cLuz[2] = 0.0f;
+		cLuz[3] = 1.0f;
+		break;
+
+	case 52: //tecla 4
+
+		cLuz[0] = 1.0f;
+		cLuz[1] = 0.0f;
+		cLuz[2] = 1.0f;
+		cLuz[3] = 1.0f;
+		break;
+
+	case 53: //tecla 5
+
+		cLuz[0] = 0.8f;
+		cLuz[1] = 0.5f;
+		cLuz[2] = 0.2f;
+		cLuz[3] = 1.0f;
 		break;
 
   }
@@ -273,22 +410,52 @@ void render(){
 	gluLookAt (0, 80, 250, 0.0, 15.0, 0.0, 0.0, 1.0, 0.0);
 
 	// Luz
-	GLfloat light_ambient[] = { 0.0, 0.0, 0.2, 1.0 };
-	GLfloat light_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
-	GLfloat light_specular[] = { 0.6, 0.6, 0.6, 1.0 };
+	glEnable(GL_LIGHTING);
+
+	GLfloat global_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+	/*
+	GLfloat light_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+	//GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+	//GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 	GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
-	GLfloat spotlight_position[] = {0.0, -1.0, 0.0};
+	GLfloat spotlight_position[] = {posX, -1.0, posZ};
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, cLuz);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, iLuz);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
+
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
+	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
+	*/
+	GLfloat light_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat light_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
+	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
+	GLfloat spotlight_position[] = {posX, -1.0, posZ};
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
 
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 50.0);
-    glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 25.0);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION,spotlight_position);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
+	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
 
+	glEnable(GL_LIGHT0);
 
+	GLfloat mat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat mat_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat high_shininess[] = { 10.0 };
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess); 
 
 	
 
