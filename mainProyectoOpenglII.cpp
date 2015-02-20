@@ -48,12 +48,15 @@ int iheight3, iwidth3;
 unsigned char* image3 = NULL;
 
 //Variables globales
+GLfloat cAmb = 0.5f; // Componente ambiental de los modelos.
+
+GLfloat light_ambient[] =  {1.0f, 1.0f, 1.0f, 1.0f};
+GLfloat light_diffuse[] =  {1.0f, 0.0f, 0.0f, 1.0f};
+GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
+GLfloat spotlight_direction[] = {0.0, -1.0, 0.0};
 
 GLfloat cutoff = 50.0f; // Cutoff del spotlight.
 GLfloat exponent = 25.0f; // Exponent del spotlight.
-GLfloat cAmb = 0.5f; // Componente ambiental de los modelos.
-GLfloat posX = 0.0f; // Posición en X del spotlight.
-GLfloat posZ = 0.0f; // Posición en Z del spotlight.
 
 GLfloat r = 1.0; // Color Red del conejo.
 GLfloat g = 1.0; // Color Green del conejo.
@@ -62,9 +65,9 @@ GLfloat b = 1.0; // Color Blue del conejo.
 GLint reflex = 0; // Reflexión
 GLint sReflex = 0; // Solo reflexión. Sin iluminación.
 
-GLfloat iLuz[] = { 1.0, 1.0, 1.0, 1.0 }; // Intensidad de la luz. // SPECULAR
-GLfloat cLuz[] = { 1.0, 1.0, 1.0, 1.0 }; // Color de la luz. // DIFFUSE
+GLfloat iLuz[] = {1.0,1.0,1.0,1.0};
 
+GLfloat cLuz[] = {1.0,1.0,1.0,1.0};
 
 void changeViewport(int w, int h) {
 	
@@ -84,74 +87,99 @@ void changeViewport(int w, int h) {
 //Funcion para inicializar las texturas
 void init_texturas(){
 
+   //Cargar el plano
+   glGenTextures(1, &texName);
+   glBindTexture(GL_TEXTURE_2D, texName);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+   image = glmReadPPM("texAO_plano.ppm", &iwidth, &iheight);
+
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth, iheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+   //Cargar columnas
+   glGenTextures(1, &texName2);
+   glBindTexture(GL_TEXTURE_2D, texName2);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+   image2 = glmReadPPM("texAO_columna.ppm", &iwidth2, &iheight2);
+
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth2, iheight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+
+   //Cargar conejo
+   glGenTextures(1, &texName3);
+   glBindTexture(GL_TEXTURE_2D, texName3);
+
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+   image3 = glmReadPPM("texAO_bunny.ppm", &iwidth3, &iheight3);
+
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth3, iheight3, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
 	
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	//Cargar textura del plano
-	glGenTextures(1, &texName);
-	image = glmReadPPM("texAO_plano.ppm", &iwidth, &iheight);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth, iheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-
-	
-	//Cargar textura de la columna
-	glGenTextures(1, &texName2);
-	image2 = glmReadPPM("texAO_columna.ppm", &iwidth2, &iheight2);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth2, iheight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
-		
-	//Cargar textura del conejo
-
-	glGenTextures(1, &texName3);
-	image3 = glmReadPPM("texAO_bunny.ppm", &iwidth3, &iheight3);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth3, iheight3, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
-		
 }
 
 
 void init(){
 
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
+   glClearColor(0.0,0.0,0.0,0.0);
    glEnable(GL_DEPTH_TEST);
+   glShadeModel(GL_SMOOTH);
+   glEnable(GL_LIGHTING);
+   //glEnable(GL_LIGHT0);
+   
    
    //Funcion para inicializar texturas
    init_texturas();
 
-   glEnable(GL_COLOR_MATERIAL);
-   glShadeModel(GL_SMOOTH);
+   //glEnable(GL_COLOR_MATERIAL);
+   //glShadeModel(GL_SMOOTH);
 
 
 }
-
+	
 //Funcion para cargar las texturas
 void cargar_texturas(int idx){
 
-	if( idx == 0){
-			
-			glBindTexture(GL_TEXTURE_2D, texName);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+	//Activar textura plano
+	if( idx == 0){
+
+			glBindTexture(GL_TEXTURE_2D, texName);
+			
+
+	//Activar textura columna
 	}else if( idx == 1){
 
+		    
 			glBindTexture(GL_TEXTURE_2D, texName2);
-
+			
+	//Activar textura conejo	
 	}else if( idx == 2){
 
 			glBindTexture(GL_TEXTURE_2D, texName3);
-					
+		   
+				
 	}
-
-		
+	
+	//glDisable(GL_TEXTURE_2D);
 }
 
 
 void cargar_materiales(int idx) {
+
+	cargar_texturas(idx);
 
 
 	// Material Piso
@@ -184,9 +212,6 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 
 	// update transform
 	aiTransposeMatrix4(&m);
-
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
 	glPushMatrix();
 	
@@ -233,13 +258,13 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 	// draw all children
 	for (n = 0; n < nd->mNumChildren; ++n) {
 		cargar_materiales(n);
-		cargar_texturas(n);
 		recursive_render(sc, nd->mChildren[n]);
 	}
 
 	glPopMatrix();
 
-	glDisable(GL_TEXTURE_2D);
+	
+
 }
 
 
@@ -253,22 +278,22 @@ void Keyboard(unsigned char key, int x, int y)
 
 	case 81: case 113: //tecla q
 
-		cutoff += 0.1;
+		cutoff += 2.0;
 		break;
 
 	case 87: case 119: //tecla w
 
-		cutoff -= 0.1;
+		cutoff -= 2.0;
 		break;
 
 	case 65: case 97: //tecla a
 
-		exponent += 0.1;
+		exponent += 2.0;
 		break;
 
 	case 83: case 115: //tecla s
 
-		exponent -= 0.1;
+		exponent -= 2.0;
 		break;
 
 	case 90: case 122: //tecla z
@@ -287,22 +312,22 @@ void Keyboard(unsigned char key, int x, int y)
 
 	case 69: case 101: //tecla e
 
-		posX += 0.1;
+		spotlight_direction[0] += 0.1;
 		break;
 
 	case 68: case 100: //tecla d
 
-		posX -= 0.1;
+		spotlight_direction[0] -= 0.1;
 		break;
 
 	case 82: case 114: //tecla r
 
-		posZ += 0.1;
+		spotlight_direction[2] += 0.1;
 		break;
 
 	case 70: case 102: //tecla f
 
-		posZ -= 0.1;
+		spotlight_direction[2] -= 0.1;
 		break;
 
 	case 84: case 116: //tecla t
@@ -429,6 +454,23 @@ void Keyboard(unsigned char key, int x, int y)
   glutPostRedisplay();
 }
 
+void DibujarObjetos3D() {
+
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, iLuz);
+   	glLightfv(GL_LIGHT0, GL_DIFFUSE, cLuz);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, iLuz);
+   	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+   	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spotlight_direction);
+   	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
+   	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
+	glEnable(GL_LIGHT0);
+
+}
+
+
+
+
 
 void render(){
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -438,12 +480,13 @@ void render(){
 	glLoadIdentity ();                       
 	gluLookAt (0, 80, 250, 0.0, 15.0, 0.0, 0.0, 1.0, 0.0);
 
-	// Luz
-	glEnable(GL_LIGHTING);
+	DibujarObjetos3D();
 
-	GLfloat global_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
+	// Luz
+	
+	/*GLfloat global_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-	/*
+	
 	GLfloat light_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
 	//GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
 	//GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
@@ -457,34 +500,15 @@ void render(){
 
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
 	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
-	*/
-	GLfloat light_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-	GLfloat light_diffuse[] = { 1.0, 0.0, 0.0, 1.0 };
-	GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
-	GLfloat spotlight_position[] = {posX, -1.0, posZ};
+	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);*/
+	
+	
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
+	//glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
+	//glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
+	//glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
 
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cutoff);
-	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, exponent);
-	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, spotlight_position);
-
-	glEnable(GL_LIGHT0);
-
-	GLfloat mat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-	GLfloat mat_diffuse[] = { 0.0, 1.0, 0.0, 1.0 };
-	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-	GLfloat high_shininess[] = { 10.0 };
-
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess); 
+	
 
 	
 
@@ -512,6 +536,7 @@ void render(){
 	
 
 
+	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glDisable(GL_LINE_SMOOTH);
 	glutSwapBuffers();
@@ -639,7 +664,6 @@ int main (int argc, char** argv) {
 
 	glutReshapeFunc(changeViewport);
 	glutDisplayFunc(render);
-	//glutTimerFunc(10,animacion,1);
 	glutKeyboardFunc (Keyboard);
 	
 
