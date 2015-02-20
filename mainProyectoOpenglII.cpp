@@ -81,13 +81,73 @@ void changeViewport(int w, int h) {
 
 }
 
+//Funcion para inicializar las texturas
+void init_texturas(){
+
+	
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//Cargar textura del plano
+	glGenTextures(1, &texName);
+	image = glmReadPPM("texAO_plano.ppm", &iwidth, &iheight);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth, iheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+	
+	//Cargar textura de la columna
+	glGenTextures(1, &texName2);
+	image2 = glmReadPPM("texAO_columna.ppm", &iwidth2, &iheight2);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth2, iheight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
+		
+	//Cargar textura del conejo
+
+	glGenTextures(1, &texName3);
+	image3 = glmReadPPM("texAO_bunny.ppm", &iwidth3, &iheight3);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth3, iheight3, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
+		
+}
+
+
 void init(){
 
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT0);
    glEnable(GL_DEPTH_TEST);
    
+   //Funcion para inicializar texturas
+   init_texturas();
 
+   glEnable(GL_COLOR_MATERIAL);
+   glShadeModel(GL_SMOOTH);
+
+
+}
+
+//Funcion para cargar las texturas
+void cargar_texturas(int idx){
+
+	if( idx == 0){
+			
+			glBindTexture(GL_TEXTURE_2D, texName);
+
+	}else if( idx == 1){
+
+			glBindTexture(GL_TEXTURE_2D, texName2);
+
+	}else if( idx == 2){
+
+			glBindTexture(GL_TEXTURE_2D, texName3);
+					
+	}
+
+		
 }
 
 
@@ -97,17 +157,7 @@ void cargar_materiales(int idx) {
 	// Material Piso
 	if (idx == 0){	
 
-		glGenTextures(1, &texName);
-		glBindTexture(GL_TEXTURE_2D, texName);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		image = glmReadPPM("texAO_plano.ppm", &iwidth, &iheight);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth, iheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+		
 
 
 	}
@@ -115,35 +165,13 @@ void cargar_materiales(int idx) {
 	// Material Columna
 	if (idx == 1){
 
-		glGenTextures(1, &texName2);
-		glBindTexture(GL_TEXTURE_2D, texName2);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		image2 = glmReadPPM("texAO_columna.ppm", &iwidth2, &iheight2);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth2, iheight2, 0, GL_RGB, GL_UNSIGNED_BYTE, image2);
-
+		
 	}
 
 	// Material Conejo
 	if (idx == 2){
 
-		glGenTextures(1, &texName3);
-		glBindTexture(GL_TEXTURE_2D, texName3);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		image3 = glmReadPPM("texAO_bunny.ppm", &iwidth3, &iheight3);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iwidth3, iheight3, 0, GL_RGB, GL_UNSIGNED_BYTE, image3);
-
+		
 	}
 
 }
@@ -205,6 +233,7 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 	// draw all children
 	for (n = 0; n < nd->mNumChildren; ++n) {
 		cargar_materiales(n);
+		cargar_texturas(n);
 		recursive_render(sc, nd->mChildren[n]);
 	}
 
