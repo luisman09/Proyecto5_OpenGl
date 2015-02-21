@@ -47,11 +47,15 @@ static GLuint texName3;
 int iheight3, iwidth3;
 unsigned char* image3 = NULL;
 
+static GLuint texSkyBox[6];
+int iheightSkyBox[6], iwidthSkyBox[6];
+unsigned char* imageSkyBox[6];
+
 //Variables globales
 GLfloat cAmb[] = { 0.5f, 0.5f, 0.5f, 1.0f }; // Componente ambiental de los modelos.
 
-GLfloat light_ambient[] =  {1.0f, 1.0f, 1.0f, 1.0f};
-GLfloat light_diffuse[] =  {1.0f, 0.0f, 0.0f, 1.0f};
+//GLfloat light_ambient[] =  {1.0f, 1.0f, 1.0f, 1.0f};
+//GLfloat light_diffuse[] =  {1.0f, 0.0f, 0.0f, 1.0f};
 GLfloat light_position[] = { 0.0, 200.0, 0.0, 1.0 };
 GLfloat spotlight_direction[] = {0.0, -1.0, 0.0};
 
@@ -62,8 +66,8 @@ GLfloat r = 1.0; // Color Red del conejo.
 GLfloat g = 1.0; // Color Green del conejo.
 GLfloat b = 1.0; // Color Blue del conejo.
 
-GLint reflex = 0; // Reflexión
-GLint sReflex = 0; // Solo reflexión. Sin iluminación.
+GLint reflex = 1; // Reflexión
+GLint sReflex = 1; // Solo reflexión. Sin iluminación.
 
 GLfloat iLuz[] = {1.0,1.0,1.0,1.0};
 
@@ -128,20 +132,104 @@ void init_texturas(){
 	
 }
 
+void init_cubeMap(){
+
+  glGenTextures(6,texSkyBox);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,texSkyBox[0]);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,texSkyBox[1]);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,texSkyBox[2]);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,texSkyBox[3]);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,texSkyBox[4]);
+  glBindTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,texSkyBox[5]);
+
+  glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
+
+  int i;
+  int numTexturas = 6;
+
+  // There is always six filenames
+  for(i = 0;i < numTexturas;++i)
+  {
+	  if( i == 0){
+
+		imageSkyBox[i] =  glmReadPPM("negx.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+
+	  } else if( i == 1){
+	  
+        imageSkyBox[i] = glmReadPPM("negy.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]); 
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+
+	  } else if( i == 2){
+	  
+        imageSkyBox[i] =  glmReadPPM("negz.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+
+	  } else if( i == 3) {
+
+        imageSkyBox[i] =  glmReadPPM("posx.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+	  
+	  } else if (i == 4){
+	  
+		imageSkyBox[i] =  glmReadPPM("posy.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+
+	  } else if( i == 5){
+
+		imageSkyBox[i] =  glmReadPPM("posz.ppm", &iwidthSkyBox[i], &iheightSkyBox[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGB,iwidthSkyBox[i],iheightSkyBox[i],0,GL_RGB,GL_UNSIGNED_BYTE,imageSkyBox[i]);
+	  
+	  }
+   
+		
+  }
+
+}
+
+void init_skybox(){
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 void init(){
 
    glClearColor(0.0,0.0,0.0,0.0);
    glEnable(GL_DEPTH_TEST);
    glShadeModel(GL_SMOOTH);
+
    glEnable(GL_LIGHTING);
-   //glEnable(GL_LIGHT0);
    
+   glEnable(GL_COLOR_MATERIAL); 
    
+   glEnable(GL_TEXTURE_CUBE_MAP);
+   glEnable(GL_TEXTURE_GEN_S);
+   glEnable(GL_TEXTURE_GEN_T);
+   glEnable(GL_TEXTURE_GEN_R);
+   glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
+   glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
+   glTexGeni(GL_R,GL_TEXTURE_GEN_MODE,GL_REFLECTION_MAP);
+     
+   //Funcion para inicializar skybox
+   init_cubeMap();
+
    //Funcion para inicializar texturas
    init_texturas();
-
-   //glEnable(GL_COLOR_MATERIAL);
+   
    //glShadeModel(GL_SMOOTH);
 
 
@@ -173,14 +261,12 @@ void cargar_texturas(int idx){
 				
 	}
 	
-	//glDisable(GL_TEXTURE_2D);
 }
 
 
 void cargar_materiales(int idx) {
 
-	cargar_texturas(idx);
-
+	
 	// Material Piso
 	if (idx == 0){	
 	
@@ -278,6 +364,7 @@ void recursive_render (const aiScene *sc, const aiNode* nd)
 
 	// draw all children
 	for (n = 0; n < nd->mNumChildren; ++n) {
+		cargar_texturas(n);
 		cargar_materiales(n);
 		recursive_render(sc, nd->mChildren[n]);
 	}
@@ -304,7 +391,10 @@ void Keyboard(unsigned char key, int x, int y)
 
 	case 87: case 119: //tecla w
 
-		cutoff -= 2.0;
+		if(cutoff > 0.0){
+			cutoff -= 2.0;
+		} 
+
 		break;
 
 	case 65: case 97: //tecla a
@@ -400,8 +490,16 @@ void Keyboard(unsigned char key, int x, int y)
 	case 67: case 99: //tecla c
 
 		if(reflex == 0){
+			glEnable(GL_TEXTURE_CUBE_MAP);
+			glEnable(GL_TEXTURE_GEN_S);
+			glEnable(GL_TEXTURE_GEN_T);
+			glEnable(GL_TEXTURE_GEN_R);
 			reflex = 1;
 		} else {
+			glDisable(GL_TEXTURE_CUBE_MAP);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_R);
 			reflex = 0;		
 		}
 		break;
@@ -409,8 +507,10 @@ void Keyboard(unsigned char key, int x, int y)
 	case 86: case 118: //tecla v
 
 		if(sReflex == 0){
+			glEnable(GL_LIGHTING);
 			sReflex = 1;
 		} else {
+			glDisable(GL_LIGHTING);
 			sReflex = 0;
 		}
 		break;
@@ -493,9 +593,6 @@ void DibujarObjetos3D() {
 }
 
 
-
-
-
 void render(){
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -535,7 +632,7 @@ void render(){
 	glPopMatrix();
 	
 
-
+	glDisable(GL_COLOR_MATERIAL);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glDisable(GL_LINE_SMOOTH);
