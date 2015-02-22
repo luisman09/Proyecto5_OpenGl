@@ -589,14 +589,13 @@ void DibujarSkyBox() {
 	float x = 0;
 	float y = 0;
 	float z = 0;
-	float width  = 302;
+	float width  = 302; // 302
 	float height = 302;
 	float length = 302;
 	// Center the skybox
 	x = x - width  / 2;
-	y = y - height / 2 + 151;
-	//y = y - height / 2;
-	z = z - length / 2;
+	y = y - height / 2;
+	z = z - length / 2 + 151;
 	// Draw Front side
 	//glBindTexture(GL_TEXTURE_2D, texSkyBox[0]); // front
 	/*glBegin(GL_QUADS);	
@@ -606,15 +605,15 @@ void DibujarSkyBox() {
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z+length);
 	glEnd();*/
 	// Draw Back side
-	//glBindTexture(GL_TEXTURE_2D, texSkyBox2[1]); // back
-	glBegin(GL_QUADS);		
+	//glBindTexture(GL_TEXTURE_2D, texSkyBox[1]); // back
+	/*glBegin(GL_QUADS);		
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z);
 		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height, z); 
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z);
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
-	glEnd();
+	glEnd();*/
 	// Draw Left side
-	//glBindTexture(GL_TEXTURE_2D, texSkyBox2[2]); // left
+	//glBindTexture(GL_TEXTURE_2D, texSkyBox[2]); // left
 	glBegin(GL_QUADS);		
 		glTexCoord2f(1.0f, 1.0f); glVertex3f(x,		  y+height,	z);	
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(x,		  y+height,	z+length); 
@@ -622,13 +621,13 @@ void DibujarSkyBox() {
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z);		
 	glEnd();
 	// Draw Right side
-	//glBindTexture(GL_TEXTURE_2D, texSkyBox2[3]); // rigth
+	//glBindTexture(GL_TEXTURE_2D, texSkyBox[3]); // rigth
 	glBegin(GL_QUADS);		
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x+width, y,		z);
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x+width, y,		z+length);
 		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y+height,	z+length); 
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y+height,	z);
-	glEnd(); 
+	glEnd();
 	// Draw Up side
 	//glBindTexture(GL_TEXTURE_2D, texSkyBox[4]); // Up
 	/*glBegin(GL_QUADS);		
@@ -639,12 +638,12 @@ void DibujarSkyBox() {
 	glEnd();*/
 	// Draw Down side
 	//glBindTexture(GL_TEXTURE_2D, texSkyBox[5]); // down
-	/*glBegin(GL_QUADS);		
+	glBegin(GL_QUADS);		
 		glTexCoord2f(0.0f, 0.0f); glVertex3f(x,		  y,		z);
 		glTexCoord2f(1.0f, 0.0f); glVertex3f(x,		  y,		z+length);
 		glTexCoord2f(1.0f, 1.0f); glVertex3f(x+width, y,		z+length); 
 		glTexCoord2f(0.0f, 1.0f); glVertex3f(x+width, y,		z);
-	glEnd();*/
+	glEnd();
 
 }
 
@@ -660,8 +659,9 @@ void render(){
 	DibujarObjetos3D();
 
 	glPushMatrix();
-		//glRotatef(90.0f,0.0f,0.0f,1.0f);
-		//glRotatef(180.0f,0.0f,1.0f,0.0f);
+		glRotatef(90.0f,1.0f,0.0f,0.0f);		
+		glRotatef(180.0f,0.0f,1.0f,0.0f);
+		//glRotatef(180.0f,0.0f,0.0f,1.0f);
 		DibujarSkyBox();
 	glPopMatrix();
 
