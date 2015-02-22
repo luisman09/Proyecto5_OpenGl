@@ -183,27 +183,6 @@ void init_cubeMap(){
 
 }
 
-void init_skybox(){
-
-	/*
-	glGenTextures(6,texSkyBox2);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[0]);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[1]);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[2]);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[3]);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[4]);
-	glBindTexture(GL_TEXTURE_2D,texSkyBox2[5]);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT );
-	*/
-
-}
-
 void init(){
 
 	glClearColor(0.0,0.0,0.0,0.0);
@@ -225,7 +204,6 @@ void init(){
      
 	//Funcion para inicializar skybox
 	init_cubeMap();
-	//init_skybox();
 
 	//Funcion para inicializar texturas
 	init_texturas();
@@ -589,13 +567,13 @@ void DibujarSkyBox() {
 	float x = 0;
 	float y = 0;
 	float z = 0;
-	float width  = 302; // 302
-	float height = 302;
-	float length = 302;
+	float width  = 550; // 302
+	float height = 550;
+	float length = 550;
 	// Center the skybox
 	x = x - width  / 2;
 	y = y - height / 2;
-	z = z - length / 2 + 151;
+	z = z - length / 2 + 80;
 	// Draw Front side
 	//glBindTexture(GL_TEXTURE_2D, texSkyBox[0]); // front
 	/*glBegin(GL_QUADS);	
